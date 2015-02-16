@@ -30,7 +30,7 @@ module Nand
     end
     def all_runnings
       uid = Process.uid
-      runnings = Sys::ProcTable.ps.select{ |ps| running_ps?(ps) and (ps.euid == uid or uid == 0)}
+      runnings = Sys::ProcTable.ps.select{ |ps| running_ps?(ps) and ps.ppid == 1 and (ps.euid == uid or uid == 0)}
       dirs = runnings.map do |run|
         boot_dir = run.environ["PWD"]
         run_dir = run.cmdline.scan(/--run_dir\s+(\S+)/).flatten.first

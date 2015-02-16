@@ -7,7 +7,7 @@ module Nand
     class ShellLauncher < Launcher
       def cmd; "#{@progname} #{@argv.join(" ")}" end
       def launch
-        spawn("#{cmd}", :out => @exec_stdout, :err => @exec_stderr, :in => @exec_stdin)
+        spawn("#{cmd}", :out => @exec_stdout, :err => @exec_stderr, :in => @exec_stdin, :pgroup => true)
       end
     end
     def self.connectable?(target, opts)

@@ -23,6 +23,7 @@ module Nand
             STDERR.reopen(@exec_stderr)
             Signal.trap(:INT)  {exit 0}
             Signal.trap(:TERM) {exit 0}
+            Process.setpgrp
             @executor.exec
           rescue LoadError => e
             STDERR.puts e.message

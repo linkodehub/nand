@@ -51,6 +51,7 @@ module Nand
       end
       Process.setsid
       exit(0) if Process.fork # double fork and exit child process
+      Process.setsid
       Dir.chdir(@run_dir)
       File.umask(0)
       STDIN.reopen("/dev/null")
@@ -64,14 +65,13 @@ module Nand
 
         Signal.trap(:INT)  {Thread.new{log.warn("RECEVIED SIG_INT")}  ; signal_send_and_exit(:INT)}
         Signal.trap(:TERM) {Thread.new{log.warn("RECEVIED SIG_TERM")} ; signal_send_and_exit(:TERM)}
-
         sleep 0.1
         @child = @launcher.launch
         raise "Failed Launch for #{@execname}" if @child.nil?
         log.info "Launched Child Process [#{@child}]"
 
         if !@limit.nil? and 0 < @limit
-          Signal.trap(:SIGCHLD) {exit 0 }
+          Signal.trap(:SIGCHLD) {terminate}
           pid, status = Process.waitpid2(@child, Process::WNOHANG)
           if pid.nil?
             log.info "Child[#{@child}] will be Stopped after #{@limit} sec"
@@ -86,12 +86,16 @@ module Nand
         log.fatal e.message
         log.debug "\n\t" + e.backtrace.join("\n\t")
       ensure
-        @child = nil
-        @pid_file.delete if @pid_file.exist?
+        terminate
       end
     end
+    def terminate
+      @child = nil
+      @pid_file.delete if @pid_file.exist?
+      exit 0
+    end
     def signal_send_and_exit(type)
-      Process.kill(type, @child) unless @child.nil?
+      Process.kill(type, -@child) unless @child.nil?
     rescue => e
       exit -1
     end
