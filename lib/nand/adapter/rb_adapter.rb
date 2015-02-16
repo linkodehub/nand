@@ -40,15 +40,13 @@ module Nand
       require_rb(target) and
       true
     rescue LoadError => e
-      false
       puts e.message
+      false
     rescue => e
       puts e.message
-
       false
     end
     def self.connect( target, opts, *argv )
-      require_rb(target)
       plugin = opts[:plugin]
       raise "Option --plugin is Required for #{target}" if plugin.nil?
       executor = Plugin.plugin!(plugin, *argv)
