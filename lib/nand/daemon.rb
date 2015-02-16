@@ -8,8 +8,10 @@ module Nand
   class Daemon
     extend ProcOperation
     include Logging
-    def logger_output_params; [@daemon_log] end
-    def logger_progname; @execname end
+    def logger_output_params ; [@daemon_log]     end
+    def logger_progname      ; @execname         end
+    def logger_formatter     ; TimeFormatter.new end
+
     attr_reader :execname, :run_dir
     def initialize(run_dir, execname, opts = {} )
       @run_dir = Pathname.new(run_dir)
@@ -57,14 +59,16 @@ module Nand
 
       begin
         File.open(@pid_file, "w"){|fs| fs.puts Process.pid }
-        logger_refresh
-        log.info "Daemonize!!!"
 
-        Signal.trap(:INT)  {log.warn("RECEVIED SIG_INT")  ; signal_send_and_exit(:INT)}
-        Signal.trap(:TERM) {log.warn("RECEVIED SIG_TERM") ; signal_send_and_exit(:TERM)}
+        log.info "Daemonize [#{Process.pid}]"
 
+        Signal.trap(:INT)  {Thread.new{log.warn("RECEVIED SIG_INT")}  ; signal_send_and_exit(:INT)}
+        Signal.trap(:TERM) {Thread.new{log.warn("RECEVIED SIG_TERM")} ; signal_send_and_exit(:TERM)}
+
+        sleep 0.1
         @child = @launcher.launch
         raise "Failed Launch for #{@execname}" if @child.nil?
+        log.info "Launched Child Process [#{@child}]"
 
         if !@limit.nil? and 0 < @limit
           Signal.trap(:SIGCHLD) {exit 0 }
@@ -78,11 +82,11 @@ module Nand
           end
         end
         Process.waitpid2(@child) unless @child.nil?
-        @child = nil
       rescue => e
         log.fatal e.message
         log.debug "\n\t" + e.backtrace.join("\n\t")
       ensure
+        @child = nil
         @pid_file.delete if @pid_file.exist?
       end
     end

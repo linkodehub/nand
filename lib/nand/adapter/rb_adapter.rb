@@ -6,11 +6,11 @@ require 'nand/launcher'
 module Nand
   class RbAdapter
     class RbFileLauncher < Launcher
-      def self.rb_file(name)
-        Pathname.new(name).expand_path
+      def self.rb_file(target)
+        Pathname.new(target).expand_path
       end
-      def initialize(name, executor, opts, *argv)
-        super(name, opts, *argv)
+      def initialize(target, executor, opts, *argv)
+        super(target, opts, *argv)
         @executor = executor
       end
       def launch
@@ -21,6 +21,8 @@ module Nand
             STDIN.reopen(@exec_stdin)
             STDOUT.reopen(@exec_stdout)
             STDERR.reopen(@exec_stderr)
+            Signal.trap(:INT)  {exit 0}
+            Signal.trap(:TERM) {exit 0}
             @executor.exec
           rescue LoadError => e
             STDERR.puts e.message
@@ -32,25 +34,30 @@ module Nand
         end
       end
     end
-    def self.connectable?( name, *argv )
-      return false if name.to_s =~/\.rb$/
-      require_rb(name)
+    def self.connectable?( target, opts)
+      return false unless target.to_s =~/\.rb$/
+      require_rb(target) and
       true
     rescue LoadError => e
       false
-    rescue
+      puts e.message
+    rescue => e
+      puts e.message
+
       false
     end
-    def self.connect( name, opts, *argv )
-      require_rb(name)
-      executor = Plugin.plugin!(name, *argv)
-      raise "Executor #{name} is Not Emplemented exec Method" unless executor.respond_to?(:exec)
-      RbFileLauncher.new(name, executor, opts, *argv)
+    def self.connect( target, opts, *argv )
+      require_rb(target)
+      plugin = opts[:plugin]
+      raise "Option --plugin is Required for #{target}" if plugin.nil?
+      executor = Plugin.plugin!(plugin, *argv)
+      raise "Executor #{plugin} is Not Emplemented exec Method" unless executor.respond_to?(:exec)
+      RbFileLauncher.new(target, executor, opts, *argv)
     rescue LoadError => e
-        raise "Not Found Plugin #{name}"
+        raise "Not Found Plugin #{target}"
     end
-    def self.require_rb(name)
-      require "#{rb_file(name)}"
+    def self.require_rb(target)
+      require "#{RbFileLauncher.rb_file(target).to_s}"
     end
   end
 end

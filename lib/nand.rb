@@ -5,7 +5,7 @@ module Nand
     yield
   rescue => e
     STDERR.puts e.message
-    STDERR.puts "\n\t" + e.backtrace.join("\n\t")
+    #STDERR.puts "\n\t" + e.backtrace.join("\n\t")
     exit -1
   end
   def self.additional_argv=(argv)
@@ -21,13 +21,14 @@ module Nand
       str
     end
   end
-  def restore_options( opts = {} )
+  def restore_options( options )
+    opts = options.dup
     unless opts[:debug]
       opts[:out] &&= string_to_stdio(opts[:out])
       opts[:err] &&= string_to_stdio(opts[:err])
       opts[:in]  &&= string_to_stdio(opts[:in] )
 
-      opts[:daemon_log] &&= string_to_stdio(opts[:daemon_log] )
+      opts[:daemon_log] &&= string_to_stdio(opts[:daemon_log])
       opts[:daemon_out] &&= string_to_stdio(opts[:daemon_out])
       opts[:daemon_err] &&= string_to_stdio(opts[:daemon_err])
 

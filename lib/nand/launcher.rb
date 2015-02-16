@@ -5,9 +5,9 @@ require 'pathname'
 module Nand
   class Launcher
     attr_reader :execname
-    def initialize(name, opts, *argv)
-      @progname    = name
-      @execname    = opts[:name] || File.basename(name)
+    def initialize(target, opts, *argv)
+      @progname    = target
+      @execname    = opts[:name] || File.basename(target)
       @exec_stdout = opts[:out]  || "/dev/null"
       @exec_stderr = opts[:err]  || "/dev/null"
       @exec_stdin  = opts[:in]   || "/dev/null"

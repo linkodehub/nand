@@ -10,12 +10,12 @@ module Nand
         spawn("#{cmd}", :out => @exec_stdout, :err => @exec_stderr, :in => @exec_stdin)
       end
     end
-    def self.connectable?(name)
+    def self.connectable?(target, opts)
       require 'mkmf'
-      !find_executable0(name).nil?
+      !find_executable0(target).nil?
     end
-    def self.connect(name, opts = {}, *argv)
-      ShellLauncher.new(name, opts, *argv)
+    def self.connect(target, opts = {}, *argv)
+      ShellLauncher.new(target, opts, *argv)
     end
   end
 end

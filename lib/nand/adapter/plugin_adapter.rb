@@ -5,8 +5,8 @@ require 'nand/adapter/rb_adapter'
 
 module Nand
   class PluginAdapter < RbAdapter
-    def self.require_rb(name)
-      require "#{name}/nand/plugin"
+    def self.require_rb(target)
+      require "#{target}/nand/plugin"
     end
   end
 end
