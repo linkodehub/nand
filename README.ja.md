@@ -107,7 +107,7 @@ sleep $1
 echo $2
 ```
 
-$ nand start sleep_echo.sh 100 '"foo bar baz"' --out out.log
+	$ nand start sleep_echo.sh 100 '"foo bar baz"' --out out.log
 	
 	$ cat out.log
 	foo bar baz
