@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+require 'nand'
+require 'nand/cli'
+
+def split_options( argv )
+  if argv.include? "--"
+    idx = argv.index("--")
+    [argv[0...idx], argv[idx+1..-1] ]
+  else
+    [argv, []]
+  end
+end
+
+wrap_exception{
+  argv, additional = split_options(ARGV)
+  Nand.additional_argv = additional
+  Cli.start(argv)
+}
