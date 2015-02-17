@@ -43,7 +43,7 @@ class SpecMon
               code = <<-END_SPEC
 # -*-mode: ruby; coding: utf-8 -*-
 require 'spec_helper'
-require '#{file}'
+require '#{file.gsub(/\.rb$/, "")}'
 
 describe "#{file} specification" do
   it "Not Specify"
