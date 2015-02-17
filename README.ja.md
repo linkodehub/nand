@@ -46,9 +46,9 @@ Rubyファイル(ライブラリやnandのplugin)になります。
 
 ## Rubyファイルのデーモン化
 
-カレントディレクトリに 以下の様な "test.rb" というファイルが存在する場合
+カレントディレクトリに 以下の様な "forever_sleep.rb" というファイルが存在する場合
 
-```ruby:test.rb
+```ruby:forever_sleep.rb
 require 'nand/plugin'
 
 module Sample
@@ -72,6 +72,10 @@ end
 
 実行可能ファイルでないRubyのファイルを指定する場合は、Nand::Pluginをextendしたクラスの
 クラス名を"-p"オプションで指定する必要があります。
+ただし、`-p`オプションが未指定の場合、ファイル名からからクラス名を類推しようとします。
+この例の場合、
+ファイル名が _forever_sleep.rb_ のため、`ForeverSleep` クラスとして検索します。
+残念ながらこの例では、失敗します。
 
 もし、上記のようなファイルをsample-VERSION.gemとしてインストールした場合は、
 Rubyのファイル名ではなく、パッケージ名を指定することで、デーモン化できます。

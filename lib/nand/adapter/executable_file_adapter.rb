@@ -16,14 +16,17 @@ module Nand
       end
       def cmd; "#{@file} #{@argv.join(" ")}" end
     end
-    def self.connectable?(target, opts)
-      file = FileLauncher.exec_file(target)
-        file.exist? and file.executable?
-    end
-    def self.connect(target, opts = {}, *argv)
+    def self.connectable?(target, io, opts)
       file = FileLauncher.exec_file(target)
       raise "Not Found #{file.to_s}"  unless file.exist?
       raise "Not Executable #{file.to_s}" unless file.executable?
+      true
+      rescue => e
+      io.puts "\t- " + e.message
+      false
+    end
+    def self.connect(target, opts = {}, *argv)
+      file = FileLauncher.exec_file(target)
       FileLauncher.new(target, opts, *argv)
     end
   end

@@ -35,20 +35,20 @@ module Nand
         end
       end
     end
-    def self.connectable?( target, opts)
+    def self.connectable?( target, io, opts )
       return false unless target.to_s =~/\.rb$/
       require_rb(target) and
       true
     rescue LoadError => e
-      puts e.message
+      io.puts "\t- " + e.message
       false
     rescue => e
-      puts e.message
+      io.puts "\t- " + e.message
       false
     end
     def self.connect( target, opts, *argv )
-      plugin = opts[:plugin]
-      raise "Option --plugin is Required for #{target}" if plugin.nil?
+      plugin = opts[:plugin] || File.basename(target, ".rb").split(/_/).map{|s| s.capitalize}.join
+      #raise "Option --plugin is Required for #{target}" if plugin.nil?
       executor = Plugin.plugin!(plugin, *argv)
       raise "Executor #{plugin} is Not Emplemented exec Method" unless executor.respond_to?(:exec)
       RbFileLauncher.new(target, executor, opts, *argv)

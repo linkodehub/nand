@@ -8,7 +8,7 @@ module Nand
     def self.require_rb(target)
       require "#{target}/nand/plugin"
     end
-    def self.connectable?( target, opts)
+    def self.connectable?( target, io, opts )
       specs = Gem::Specification.find_all do |s|
         s.name =~/^(nand-)*#{target}$/ and s.dependencies.find{ |d| d.name == "nand" }
       end
@@ -17,10 +17,10 @@ module Nand
       require_rb(specs.first.name)
       true
     rescue LoadError => e
-      puts e.message
+      io.puts "\t- " + e.message
       false
     rescue => e
-      puts e.message
+      io.puts "\t- " + e.message
       false
     end
   end

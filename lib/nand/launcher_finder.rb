@@ -9,10 +9,11 @@ require 'nand/adapter/plugin_adapter'
 module Nand
   class LauncherFinder
     def self.find(target, opts = {}, *argv)
+      err = StringIO.new("", "w")
       adapter = [ExecutableFileAdapter, RbAdapter, PluginAdapter, ShellAdapter].find do |adapter|
         adapter.connectable? target, opts
       end
-      raise "Not Found Executable #{target}" if adapter.nil?
+      raise "Not Found Executable #{target}:\n#{io.string}" if adapter.nil?
       launcher = adapter.connect(target, opts, *argv)
       raise "Not be Ready for #{target} Launcher" unless launcher.ready?
       launcher
