@@ -18,6 +18,7 @@ class SpecMon
 
     raise "Not Readable Directory #{lib_dir}" unless lib_dir.readable?
     raise "Not Writable Directory #{spec_dir}" unless spec_dir.writable?
+    puts "Monitoring #{lib_dir} and Generate to #{spec_dir}"
     new(lib_dir, spec_dir)
   end
   attr_reader :monitoring_dir, :spec_dir
@@ -26,12 +27,17 @@ class SpecMon
     @spec_dir = Pathname.new(spec_dir).expand_path
   end
   def monitor
-    FSSM.monitor(monitoring_dir, "**/*") do
+    spec_dir = @spec_dir
+    FSSM.monitor(@monitoring_dir, "**/*") do
       create do |dir, file|
         if file =~/\.rb$/
-          dist_dir = Pathname.new(dir.gsub(/#{lib_dir.to_s}/, spec_dir.to_s))
-          dist_dir.mkpath unless dist_dir.exist?
-          spec = dist_dir.join(file.gsub(/\.rb/, "_spec.rb"))
+          puts "Created Ruby File #{file} in #{dir}"
+          spec = spec_dir.join(file.gsub(/\.rb$/, "_spec.rb"))
+          puts "Generate Spec file  #{spec}"
+          unless spec.dirname.exist?
+            puts "Not Found Dist Path #{spec.dirname}, mkpath!"
+            FileUtils.mkdir_p(spec.dirname, :mode => 0755)
+          end
           unless spec.exist?
             File.open(spec, "w") do |fs|
               code = <<-END_SPEC
@@ -45,6 +51,11 @@ end
 
                     END_SPEC
               fs.puts code
+            end
+            if spec.exist?
+              puts "Success Genrated #{spec}"
+            else
+              puts "Failed Genrated #{spec}"
             end
           end
         end
