@@ -11,7 +11,7 @@ module Nand
     def self.find(target, opts = {}, *argv)
       err = StringIO.new("", "w")
       adapter = [ExecutableFileAdapter, RbAdapter, PluginAdapter, ShellAdapter].find do |adapter|
-        adapter.connectable? target, opts
+        adapter.connectable? target, err, opts
       end
       raise "Not Found Executable #{target}:\n#{io.string}" if adapter.nil?
       launcher = adapter.connect(target, opts, *argv)
