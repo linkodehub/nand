@@ -2,20 +2,26 @@
 
 ## 概要
 
-Nand は Nandemo(ナンデモ) daemon にすることができるシンプルなコマンドラインツールです。
+Nand は Nandemo(ナンデモ) daemon にすることができるRubyで作られたシンプルなコマンドラインツールです。
 
 ここで言う"ナンデモ"とは、シェルコマンドや実行形式のファイル、
 Rubyファイル(ライブラリやnandのplugin)になります。
 
-デーモン化するには、シンプルに "nand start TARGET"をコマンドラインから実行するだけです。
-停止させるには、もちろん"nand stop TARGET"です。
-動作状態の確認は"nand status TARGET"で確認できます。
+デーモン化するには、シンプルに `nand start TARGET`をコマンドラインから実行するだけです。
+停止させるには、もちろん`nand stop TARGET`です。
+動作状態の確認は`nand status TARGET`で確認できます。
 
 ## インストール
 
     $ gem install nand
 
 ## 簡単な利用方法
+
+### コマンド
+
+	$ nand SUB_COMMAND TARGET [オプション]
+
+`SUB_COMMAND` と デーモンプロセスのターゲットを指定します。
 
 ### 起動
 
@@ -25,20 +31,25 @@ Rubyファイル(ライブラリやnandのplugin)になります。
 
 ターゲット以降で、Nandのオプションとして認識されないものは、
 デーモンプロセスへ引き渡されます。
-なお、"sleep 1000" がデーモンプロセスとして動作し、"sleep"がデーモンプロセス名としてnandに認識されます。
+なお、`sleep 1000` がデーモンプロセスとして動作し、`sleep`がデーモンプロセス名としてnandに認識されます。
 
+### 状態確認
+
+ターゲット`sleep`の動作状況を確認するためには、以下のコマンドを実行します。
+
+	$ cd /any/path
 	$ nand status sleep
 	sleep is Running [85596] by USER in /any/path
 
-"start"と同一ディレクトリであれば、デーモンプロセス名としての"sleep"は省略できます。
+`start`と同一ディレクトリであれば、デーモンプロセス名としての`sleep`は省略できます。
 
 ### 停止
 
 	$ nand stop sleep
 	sleep is Stopped [85596]
 
-"stop"も"status"と同様に"start"と同一ディレクトリであれば、
-デーモンプロセス名としての"sleep"は省略もできます。
+`stop`も`status`と同様に`start`と同一ディレクトリであれば、
+デーモンプロセス名としての`sleep`は省略もできます。
 
 	$ nand status sleep
 	sleep is Not Running in /any/path
@@ -46,7 +57,7 @@ Rubyファイル(ライブラリやnandのplugin)になります。
 
 ## Rubyファイルのデーモン化
 
-カレントディレクトリに 以下の様な "forever_sleep.rb" というファイルが存在する場合
+カレントディレクトリに 以下の様な `forever_sleep.rb` というファイルが存在する場合
 
 ```ruby:forever_sleep.rb
 require 'nand/plugin'
@@ -64,14 +75,14 @@ module Sample
 end
 ```
 
-	$ nand start test.rb -p Sample::ForeverSleep
-	test.rb is Start Success [86326]
+	$ nand start forever_sleep.rb -p Sample::ForeverSleep
+	forever_sleep.rb is Start Success [86326]
 
-	$ nand stop test.rb
-	test.rb is Stopped [86326]
+	$ nand stop forever_sleep.rb
+	forever_sleep.rb is Stopped [86326]
 
 実行可能ファイルでないRubyのファイルを指定する場合は、Nand::Pluginをextendしたクラスの
-クラス名を"-p"オプションで指定する必要があります。
+クラス名を`-p`オプションで指定する必要があります。
 ただし、`-p`オプションが未指定の場合、ファイル名からからクラス名を類推しようとします。
 この例の場合、
 ファイル名が _forever_sleep.rb_ のため、`ForeverSleep` クラスとして検索します。
@@ -83,20 +94,20 @@ Rubyのファイル名ではなく、パッケージ名を指定することで�
 (sample/nand/plugin.rb)配置する必要があります。
 
 
-## 便利な利用方法
+## 様々な利用方法
 
 ### Nandオプションと重複する場合
 
 Nandオプションと重複する場合は、2通りの方法で回避できます。
 
-一つめは、""でオプションを囲む方法
+一つめは、"や'(クォーテーション)でオプションを囲む方法
 
 	$ nand start any.sh "--run_dir /tmp"
 
-なお、"--run_dir /tmp"は内部では "--run_dir", "/tmp"に分割されますので、
-分割されないようにするためには、'"--run_dir /tmp"'などのようにする必要があります。
+なお、`"--run_dir /tmp"`は内部では `--run_dir`, `/tmp`に分割されますので、
+分割されないようにするためには、`'"--run_dir /tmp"'`などのようにする必要があります。
 
-二つ名は 2つのダッシュ(--)の後に記述する方法
+二つめは 2つのダッシュ(--)の後に記述する方法
 
 	$ nand start any.sh -- --run_dir /tmp
 
@@ -104,18 +115,21 @@ Nandオプションと重複する場合は、2通りの方法で回避できま
 
 ### デーモンプロセスへのパイプ
 
+
 ```sh
 #!/bin/sh
 sleep $1
 echo $2
 ```
 
+sleep_echo.shという実行形式のファイルがあった場合、
+
 	$ nand start sleep_echo.sh 100 '"foo bar baz"' --out out.log
 	
 	$ cat out.log
 	foo bar baz
 
-なお、STDINは"--in"、STDERRは "--err"にそれぞれパイプをつなぐことができます。
+なお、STDINは`--in`、STDERRは `--err`にそれぞれパイプをつなぐことができます。
 
 
 ### 動作ディレクトリの変更
@@ -126,9 +140,9 @@ PIDファイルを出力したり、デーモンプロセスは動作ディレ�
 動作ディレクトリは基本的にnandコマンドを実行したディレクトリですが、
 オプションで指定もできます。
 
-	$ nand start sleep_echo.sh 100 abc --run_dir=/tmp --out out.log
+	$ nand start sleep_echo.sh 100 abc --run_dir /tmp --out out.log
 
-これにより、"out.log"は"/tmp/out.log"に出力されます。
+これにより、`out.log`は`/tmp/out.log`に出力されます。
 
 
 ### 二重起動の禁止
@@ -141,7 +155,7 @@ PIDファイルを出力したり、デーモンプロセスは動作ディレ�
 	sleep is Start Failed [PID file exist /any/path/.nand_sleep.pid]
 
 これを回避する必要がある場合は、前述の動作ディレクトリを変更するか、
-"-n" オプションを利用してデーモンプロセス名を指定する方法があります。
+`-n` オプションを利用してデーモンプロセス名を指定する方法があります。
 
 	$ nand start sleep 1000 -n sleep1
 	sleep1 is Start Success [97649]
@@ -159,18 +173,27 @@ PIDファイルを出力したり、デーモンプロセスは動作ディレ�
 
 上記の例では、600秒後に自動で停止します。
 
+### 自動再起動
+
+デーモンプロセスが停止した場合、`-r` オプションを設定しておくことで、
+自動で再起動させることができます。
+
+	$ nand start sleep 100 -r
+
+この例では、100秒後に停止した`sleep 100`が、再度`sleep 100`で
+再起動します。
 
 ## 注意事項
 
 
-"stop"時はデーモンプロセスが管理するプロセスグループに対して、SIGTERMを送信します。
+`stop`時はデーモンプロセスが管理するプロセスグループに対して、SIGTERMを送信します。
 デーモンプロセスは送信したプロセスグループの終了を待ち合わせます。
 デーモン化したい処理については、必ずSIGTERMで終了するようにしてください。
 
-動作ディレクトリにおいて、".nand_デーモンプロセス名.pid"というファイルが生成されます。
-このファイルは二重起動抑制のために利用される他、"stop/status"時の
+動作ディレクトリにおいて、`.nand_デーモンプロセス名.pid`というファイルが生成されます。
+このファイルは二重起動抑制のために利用される他、`stop/status`時の
 整合性確認にも利用されます。
-もし、このファイルを誤って削除した場合は、"stop/status"がエラーを出力します。
+もし、このファイルを誤って削除した場合は、`stop/status`がエラーを出力します。
 その指示に従って、不要なプロセスであることをpsコマンドなどで確認して、
 手動でプロセスを停止させてください。
 	

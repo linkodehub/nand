@@ -22,6 +22,8 @@ module Nand
       @daemon_log = opts[:daemon_log] || "/dev/null"
       @daemon_out = opts[:daemon_out] || "/dev/null"
       @daemon_err = opts[:daemon_err] || "/dev/null"
+      @recovery   = opts[:recovery] || false
+      @recovery_sec = opts[:recovery_sec] || 1
       @limit = opts[:sec]
 
       log.level  = LOG_DEBUG if opts[:debug]
@@ -63,25 +65,21 @@ module Nand
 
         log.info "Daemonize [#{Process.pid}]"
 
-        Signal.trap(:INT)  {Thread.new{log.warn("RECEVIED SIG_INT")}  ; signal_send_and_exit(:INT)}
-        Signal.trap(:TERM) {Thread.new{log.warn("RECEVIED SIG_TERM")} ; signal_send_and_exit(:TERM)}
-        sleep 0.1
-        @child = @launcher.launch
-        raise "Failed Launch for #{@execname}" if @child.nil?
-        log.info "Launched Child Process [#{@child}]"
+        Signal.trap(:INT)  {Thread.new{log.warn("RECEVIED Signal INT") ; send_signal_and_exit(:INT)}}
+        Signal.trap(:TERM) {Thread.new{log.warn("RECEVIED Signal TERM") ; send_signal_and_exit(:TERM)}}
+        begin
+          sleep 0.1
 
-        if !@limit.nil? and 0 < @limit
-          Signal.trap(:SIGCHLD) {terminate}
-          pid, status = Process.waitpid2(@child, Process::WNOHANG)
-          if pid.nil?
-            log.info "Child[#{@child}] will be Stopped after #{@limit} sec"
-            sleep @limit
-            Signal.trap(:SIGCHLD, "IGNORE")
-            log.info "Send Signal TERM to Child[#{@child}] #{@limit} sec past"
-            Process.kill(:TERM, @child)
-          end
-        end
-        Process.waitpid2(@child) unless @child.nil?
+          @child = @launcher.launch
+          raise "Failed Launch for #{@execname}" if @child.nil?
+          log.info "Launched Child Process [#{@child}]"
+
+          wait_untill_limit if !@limit.nil? and 0 < @limit
+
+          Process.waitpid2(@child) unless @child.nil?
+          log.warn "PID #{@child} down"
+          sleep @recovery_time if @recovery
+        end while @recovery
       rescue => e
         log.fatal e.message
         log.debug "\n\t" + e.backtrace.join("\n\t")
@@ -89,15 +87,21 @@ module Nand
         terminate
       end
     end
-    def terminate
-      @child = nil
+    def terminate( code = 0 )
+      unless @child.nil?
+        log.info "terminate for #{@child} with exit code #{code}"
+        @child = nil
+      end
       @pid_file.delete if @pid_file.exist?
-      exit 0
+      exit code
     end
-    def signal_send_and_exit(type)
+    def send_signal_and_exit(type)
       Process.kill(type, -@child) unless @child.nil?
+      log.warn "Sent Signal #{type} to #{@child}"
+      terminate
     rescue => e
-      exit -1
+      log.fatal "Failed Send Signal to -#{@child}, since #{e.message}"
+      terminate -1
     end
     private
     def stop_with_signal(signal)
@@ -107,6 +111,17 @@ module Nand
         raise "#{@execname} is Not Running"
       end
       Process.kill(signal, pid)
+    end
+    def wait_untill_limit
+      Signal.trap(:SIGCHLD) {terminate}
+      pid, status = Process.waitpid2(@child, Process::WNOHANG)
+      if pid.nil?
+        log.info "Child[#{@child}] will be Stopped after #{@limit} sec"
+        sleep @limit
+        Signal.trap(:SIGCHLD, "IGNORE")
+        log.info "Send Signal TERM to Child[#{@child}] #{@limit} sec past"
+        Process.kill(:TERM, @child)
+      end
     end
   end
 end

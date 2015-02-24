@@ -5,7 +5,7 @@ require 'thor'
 
 require 'nand/daemon'
 require 'nand/logger'
-require 'nand/launcher_finder'
+require 'nand/launcher'
 
 module Nand
   class Cli < Thor
@@ -18,12 +18,14 @@ module Nand
     option :out, :aliases => '-o', :default => "/dev/null", :desc => "Daemon process STDOUT pipes to output file"
     option :err, :aliases => '-e', :default => "/dev/null", :desc => "Daemon process STDERR pipes to output error file"
     option :in, :aliases => '-i', :default => "/dev/null", :desc => "Daemon process STDIN  pipes to input file"
-    option :name, :aliases => '-n', :desc => "Spcify Alias Name of Daemon process, default is first argument"
+    option :name, :aliases => '-n', :desc => "Spcify Alias Name of Daemon process, default is first argument(EXEC_TARGET)"
     option :plugin, :aliases => '-p', :desc => "Nand Plugin File Name or Gem Package Name"
-    option :sec, :aliases => '-s', :type => :numeric, :desc => "Running time of Daemon process for seconds"
+    option :sec, :aliases => '-s', :type => :numeric, :desc => "Running time limit [seconds] of Daemon process"
     option :demon_out, :default => "/dev/null", :hide => true, :desc => "Daemon Process STDOUT pipes DEAMON_OUT"
     option :demon_err, :default => "/dev/null", :hide => true, :desc => "Daemon Process STDERR pipes DEAMON_ERR"
     option :demon_log, :default => "/dev/null", :desc => "Output Daemon Process Log file"
+    option :recovery, :aliases => '-r', :type => :boolean, :desc => "Auto Recovery"
+    option :recovery_sec, :type => :numeric, :desc => "Auto Recovery time span[seconds]"
 
     def start(target, *argv)
       opts = restore_options(options)
@@ -95,7 +97,7 @@ module Nand
 
     private
     def find_launcher(target, opts, *argv, &block)
-      launcher = Nand::LauncherFinder.find( target, opts, *(argv + Nand.additional_argv) )
+      launcher = Nand::Launcher.find( target, opts, *(argv + Nand.additional_argv) )
       if block_given?
         block.call(launcher)
       else
