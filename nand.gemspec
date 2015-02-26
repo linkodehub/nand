@@ -6,11 +6,11 @@ require 'nand/version'
 Gem::Specification.new do |spec|
   spec.name          = "nand"
   spec.version       = Nand::VERSION
-  spec.authors       = ["satoyama"]
-  spec.email         = ["satoyama@linkode.co.jp"]
+  spec.authors       = ["nstoym"]
+  spec.email         = ["nstoym@linkode.co.jp"]
   spec.description   = %q{Nand is Nandemo Daemon Tool, Nandemo means everthing.}
   spec.summary       = %q{Nandemo Daemon Tool}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/linkodehub/nand"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

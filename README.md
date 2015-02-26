@@ -2,7 +2,7 @@
 
 ### Overview
 
-Nand which creates evrything daemon is simple CLI tool by Ruby.
+Nand is a simple CLI tool to make anything daemon by Ruby.
 Nand is the meaning of Nandemo of Japanese.
 
 Nandemo of here is a executable file and shell command, a non-executable Ruby file.
@@ -197,3 +197,7 @@ the daemon process manually.
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## License
+
+MIT
