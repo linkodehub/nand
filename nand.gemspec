@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Nand::VERSION
   spec.authors       = ["nstoym"]
   spec.email         = ["nstoym@linkode.co.jp"]
-  spec.description   = %q{Nand is Nandemo Daemon Tool, Nandemo means everthing.}
+  spec.description   = %q{Nand is a simple CLI tool to make anything daemon by Ruby.}
   spec.summary       = %q{Nandemo Daemon Tool}
   spec.homepage      = "https://github.com/linkodehub/nand"
   spec.license       = "MIT"

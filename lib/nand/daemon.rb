@@ -78,7 +78,7 @@ module Nand
 
           Process.waitpid2(@child) unless @child.nil?
           log.warn "PID #{@child} down"
-          sleep @recovery_time if @recovery
+          sleep @recovery_sec if @recovery
         end while @recovery
       rescue => e
         log.fatal e.message
