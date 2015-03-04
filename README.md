@@ -1,8 +1,4 @@
-# Nand
-
-[![Gem Version](https://badge.fury.io/rb/nand.svg)](http://badge.fury.io/rb/nand)
-[![Code Climate](https://codeclimate.com/github/linkodehub/nand/badges/gpa.svg)](https://codeclimate.com/github/linkodehub/nand)
-[![Join the chat at https://gitter.im/linkodehub/nand](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/linkodehub/nand?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# Nand [![Gem Version](https://badge.fury.io/rb/nand.svg)](http://badge.fury.io/rb/nand) [![Code Climate](https://codeclimate.com/github/linkodehub/nand/badges/gpa.svg)](https://codeclimate.com/github/linkodehub/nand) [![Join the chat at https://gitter.im/linkodehub/nand](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/linkodehub/nand?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Overview
 
