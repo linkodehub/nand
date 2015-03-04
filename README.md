@@ -1,4 +1,4 @@
-# Nand
+# Nand [![Gem Version](https://badge.fury.io/rb/nand.svg)](http://badge.fury.io/rb/nand) [![Code Climate](https://codeclimate.com/github/linkodehub/nand/badges/gpa.svg)](https://codeclimate.com/github/linkodehub/nand)
 
 ### Overview
 
