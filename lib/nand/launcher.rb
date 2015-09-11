@@ -1,6 +1,7 @@
 # -*-mode: ruby; coding: utf-8 -*-
 
 require 'pathname'
+require 'stringio'
 
 module Nand
   module Launcher
